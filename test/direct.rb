@@ -61,9 +61,11 @@ ranks = a['apis'].map { _1['rank'] }
 check.call('provider best rank first', ranks.compact == ranks.compact.sort && (ranks.index(nil) || ranks.size) >= ranks.compact.size, ranks.inspect)
 a = D::Provider.new.call(slug: 'Brîght Dâta')
 check.call('provider an accented name', a['slug'] == 'bright-data', a['slug'] || a['error'])
-in_ractor = Ractor.new { LLM::Datacircle::Provider.new.call(slug: 'Brîght Dâta') }
-a = in_ractor.respond_to?(:value) ? in_ractor.value : in_ractor.take
-check.call('provider in a ractor of its own', a['slug'] == 'bright-data' && a['total'].positive?, a['slug'] || a['error'])
+if RUBY_VERSION >= '4'
+  # Ruby 3.4's Net::HTTP can't run in a ractor (Net::HTTP::SSL_IVNAMES): the ractor strategy needs Ruby 4.
+  a = Ractor.new { LLM::Datacircle::Provider.new.call(slug: 'Brîght Dâta') }.value
+  check.call('provider in a ractor of its own', a['slug'] == 'bright-data' && a['total'].positive?, a['slug'] || a['error'])
+end
 a = D::Provider.new.call(slug: 'email-finder')
 check.call('provider an API slug sent', a['error'].to_s.include?('datacircle-best-plans'), a['error'])
 a = D::Provider.new.call

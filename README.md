@@ -50,7 +50,7 @@ res = PlanFinder.new(llm).talk "Who is best for the SERP API?"
 puts res.content
 ```
 
-The tools run on each concurrency strategy of llm.rb: `:sequential` (the default), `:thread`, `:fiber`, `:async`, `:fork` and `:ractor`. Run them on threads like this:
+The tools run on each concurrency strategy of llm.rb: `:sequential` (the default), `:thread`, `:fiber`, `:async`, `:fork` and `:ractor`. `:ractor` needs Ruby 4, as the Net::HTTP of Ruby 3.4 can't run in a ractor. Run the tools on threads like this:
 
 ```ruby
 agent = LLM::Agent.new(llm, tools: LLM::Datacircle.tools, concurrency: :thread)
